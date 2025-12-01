@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://pu5cpwqttjuk"]
+
+[ext_resource type="PackedScene" uid="uid://bgmkabq0g7xpk" path="res://letter_tile.tscn" id="1_go4wn"]
+
+[node name="Row" type="HBoxContainer"]
+
+[node name="LetterTile" parent="." instance=ExtResource("1_go4wn")]
+layout_mode = 2

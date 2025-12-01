@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgmkabq0g7xpk"]
+
+[ext_resource type="Script" uid="uid://jx48d2ryidjy" path="res://enums.gd" id="1_o2b0x"]
+
+[node name="LetterTile" type="Panel"]
+script = ExtResource("1_o2b0x")
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
