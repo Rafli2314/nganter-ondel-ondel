@@ -1,0 +1,507 @@
+==========================================================================
+GlobalState.gd
+
+
+error : no error
+==========================================================================
+extends Node
+
+# --- in-memory state ---
+var player_position: Vector2 = Vector2.ZERO
+var ondell_follow_mode: bool = true
+var progress_flags: Dictionary = {}   # generic flags: {"door_1_open": true, ...}
+var scene_name_before: String = ""
+
+# --- persistence file (optional) ---
+const SAVE_PATH := "user://global_state.json"
+
+func _ready():
+	# Try to load on startup (optional)
+	load_to_memory()
+	
+	# API: set state before scene change
+func set_player_state(pos: Vector2, follow_mode: bool) -> void:
+	player_position = pos
+	ondell_follow_mode = follow_mode
+	
+func set_flag(key: String, value) -> void:
+	progress_flags[key] = value
+	
+func get_flag(key: String, default := false):
+	if progress_flags.has(key):
+		return progress_flags[key]
+	return default
+	
+# Save to disk (optional but useful)
+func save_to_disk() -> void:
+	var d = {
+		"player_position": { "x": player_position.x, "y": player_position.y },
+		"ondell_follow_mode": ondell_follow_mode,
+		"progress_flags": progress_flags
+	}
+	var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(d))
+		f.close()
+
+# Load from disk to memory
+func load_to_memory() -> void:
+	if not FileAccess.file_exists(SAVE_PATH):
+		return
+	var f = FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if not f:
+		return
+	var txt = f.get_as_text()
+	f.close()
+	var parsed = JSON.parse_string(txt)
+	if typeof(parsed) == TYPE_DICTIONARY:
+		var d = parsed
+		if d.has("player_position"):
+			var p = d["player_position"]
+			player_position = Vector2(p.get("x", 0), p.get("y", 0))
+		ondell_follow_mode = d.get("ondell_follow_mode", true)
+		progress_flags = d.get("progress_flags", {})
+		
+# Clear saved file
+func clear_save() -> void:
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+	player_position = Vector2.ZERO
+	ondell_follow_mode = true
+	progress_flags.clear()
+
+
+==========================================================================
+main.gd
+
+
+error : no error
+==========================================================================
+extends Node2D
+
+func _ready():
+	# jika ada saved state, restore posisi & follow mode
+	if GlobalState.player_position != Vector2.ZERO:
+		# safety: cek apakah node ada
+		if has_node("player"):
+			$player.global_position = GlobalState.player_position
+		if has_node("ondel-ondel"):
+			$"ondel-ondel".follow_mode = GlobalState.ondell_follow_mode
+
+	# juga bisa restore flags: contoh buka pintu
+	if GlobalState.get_flag("terminal_opened"):
+		if has_node("terminal"):
+			$terminal.some_open_logic()  # implement sesuai node
+
+==========================================================================
+player.gd
+
+
+error : so far none
+==========================================================================
+extends CharacterBody2D
+
+const SPEED = 120
+const JUMP_FORCE = -320.0
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var follow_mode := true
+
+func _ready():
+	add_to_group("player")
+
+func _physics_process(delta):
+	# Gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+
+	# Horizontal input
+	var input_dir = Input.get_axis("ui_left", "ui_right")
+	velocity.x = input_dir * SPEED
+	if Input.is_action_pressed("ui_right"):
+		$AnimatedSprite2D.flip_h = false
+
+	elif Input.is_action_pressed("ui_left"):
+		$AnimatedSprite2D.flip_h = true
+	# Jump
+	if is_on_floor() and Input.is_action_just_pressed("ui_up"):
+		velocity.y = JUMP_FORCE
+		
+	# === ANIMATION STATE MACHINE ===
+	if not is_on_floor():
+		$AnimatedSprite2D.play("aliya-jump")
+	elif velocity.x != 0:
+		$AnimatedSprite2D.play("aliya-walk")
+	else:
+		$AnimatedSprite2D.play("aliya-idle")
+		
+	# Toggle follow
+	if Input.is_action_just_pressed("toggle_follow"):
+		var ond = get_node("../ondel-ondel")
+		ond.follow_mode = !ond.follow_mode
+	move_and_slide()
+	
+func bounce():
+	velocity.y = -200
+
+
+==========================================================================
+ondel_ondel.gd
+
+
+error : so far none
+==========================================================================
+extends CharacterBody2D
+
+@export var follow_target: NodePath
+var speed = 60
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var follow_mode := true
+
+func _physics_process(delta):
+	var target = get_node(follow_target)
+	
+	# Gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+	
+	# If stay command active → DO NOTHING
+	if not follow_mode:
+		velocity.x = 0
+		$AnimatedSprite2D.play("ondel-ondel-idle")
+		move_and_slide()
+		return
+
+	# Follow logic
+	var dx = target.global_position.x - global_position.x
+
+	if abs(dx) > 16:
+		velocity.x = speed * sign(dx)
+	else:
+		velocity.x = 0
+
+	# Auto-hop if stuck on wall
+	if is_on_floor() and is_on_wall():
+		velocity.y = -160
+
+	$AnimatedSprite2D.play("ondel-ondel-idle")
+	
+	move_and_slide()
+
+
+==========================================================================
+enemy.gd
+
+
+error : so far none
+==========================================================================
+extends CharacterBody2D
+
+const SPEED = 25.0
+
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+
+@onready var animated_sprite_2d = $AnimatedSprite2D
+
+func _physics_process(delta):
+	# Add the gravity.
+	velocity.y += gravity * delta
+	
+	# Set the horizontal velocity to a constant negative value to move left.
+	velocity.x = -SPEED
+	
+	move_and_slide()
+
+func _on_top_kill_body_entered(body: Node2D) -> void:
+	if body.is_in_group("Player"):
+		queue_free()
+
+
+==========================================================================
+terminal0.gd
+
+
+error : so far none
+==========================================================================
+extends Area2D
+
+var entered = false
+
+func _on_body_entered(body):
+	entered = true
+
+func _on_body_exited(body):
+	entered = false
+
+func _process(delta):
+	if entered == true:
+		if Input.is_action_just_pressed("interact"):
+						# sebelum change_scene
+			var p = get_tree().get_current_scene().get_node("player")
+			var ond = get_tree().get_current_scene().get_node("ondel-ondel")
+			GlobalState.set_player_state(p.global_position, ond.follow_mode)
+			GlobalState.save_to_disk()   # opsional, tapi bagus buat persistence
+			get_tree().change_scene_to_file("res://scenes/wordle/WordlePuzzle.tscn")
+	if GlobalState.get_flag("door_2_open"):
+		$Door2.open_immediately()     # implementasikan helper untuk bypass anim jika perlu
+
+
+==========================================================================
+wordle_puzzle.gd
+
+
+error : so far none
+==========================================================================
+extends Control
+
+# Reference ke line_container (otak wordle)
+@onready var line_container := $line_container
+# Label tempat menampilkan arti kata
+@onready var meaning_label := $MeaningLabel
+
+var current_answer := ""
+var current_meaning := ""
+
+func _ready():
+	# Ambil kata dan arti dari line_container
+	current_answer = line_container.today_word
+	current_meaning = line_container.get_meaning(current_answer)
+# Hubungkan sinyal
+	line_container.connect("wordle_win", Callable(self, "_on_wordle_win"))
+	line_container.connect("wordle_fail", Callable(self, "_on_wordle_fail"))
+
+	meaning_label.text = ""  # kosong dulu
+
+# Saat pemain menang
+func _on_wordle_win():
+	meaning_label.text = current_answer + " = " + current_meaning
+	
+	# Saat pemain gagal
+func _on_wordle_fail():
+	meaning_label.text = "Gagal menebak!\nJawaban: " + current_answer + "\n\n" + current_meaning
+
+func _on_close_pressed():
+	# contoh: simpan posisi player (jika player node masih ada di scene Wordle)
+	# jika Wordle scene tidak punya player node, simpan state sebelum pindah dari main (lihat step 2A)
+	# Jika kamu ingin menyimpan flags, misal "solved_puzzle_terminal_1"
+	GlobalState.set_flag("terminal_1_solved", true)
+	GlobalState.save_to_disk()
+	get_tree().change_scene_to_file("res://scenes/main.tscn")
+	visible = false
+	get_tree().paused = false
+
+func _on_terminal_open_puzzle() -> void:
+	pass # Replace with function body.
+
+func _on_button_pressed() -> void:
+			get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+
+==========================================================================
+letter_1.gd
+
+
+error : so far none
+==========================================================================
+extends Label
+
+var bg_default = load("res://asset/bg_default_sb.tres")
+var bg_gray = load("res://asset/bg_gray_sb.tres")
+var bg_green = load("res://asset/bg_green_sb.tres")
+var bg_yellow = load("res://asset/bg_yellow_sb.tres")
+
+
+var array_status = [bg_default, bg_gray, bg_green, bg_yellow]
+
+func _ready() -> void:
+	change_status(0)
+
+func change_status(status: int) -> void:
+	# play flip animation, tunggu selesai, lalu apply stylebox
+	$AnimationPlayer.play("flip")
+	# Tunggu timeout timer: gunakan dot-syntax await
+	await get_tree().create_timer(0.3).timeout
+	$AnimationPlayer.play("flip_back")
+
+	# Use add_theme_stylebox_override dengan key yang sesuai. 
+	# "panel" atau "normal" tergantung bagaimana theme/style kamu disusun — coba "panel" dulu.
+	var sb = array_status[status]
+	if sb != null:
+		add_theme_stylebox_override("normal", sb)
+			
+	else:
+		# fallback: pakai modulate kalau stylebox nil
+		# modulate = Color(1,1,1,1)
+		change_status(1)
+
+
+func pop_anim() -> void:
+	$AnimationPlayer.play("pop")
+
+
+==========================================================================
+line_1.gd
+
+
+error : so far none
+==========================================================================
+extends HBoxContainer
+
+@export var line_status: bool = false
+var word_input: String = ""
+
+signal word_to_container(word: String)
+
+func _input(event):
+	if not line_status:
+		return
+	
+	# ENTER to submit
+	if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_ENTER:
+		emit_signal("word_to_container", word_input)
+		return
+
+	# BACKSPACE
+	if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_BACKSPACE:
+		if word_input.length() > 0:
+			word_input = word_input.erase(word_input.length() - 1, 1)
+			update_label()
+		return
+
+	# LETTER INPUT
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		var ch: String = event.as_text()
+		if ch.length() == 1 and word_input.length() < get_child_count():
+			word_input += ch
+			update_label()
+			get_child(word_input.length() - 1).pop_anim()
+			print(word_input)
+
+func update_label():
+	for i in range(get_child_count()):
+		get_child(i).text = ""
+	for i in range(word_input.length()):
+		get_child(i).text = word_input[i]
+
+
+==========================================================================
+line_container.gd
+
+
+error : so far none
+==========================================================================
+extends VBoxContainer
+
+signal wordle_win
+signal wordle_fail
+
+var file
+var file_dir = "res://scripts/wordle/word list.json"
+var data
+var today_word
+var line_active = 0
+
+func _ready():
+	load_data(file_dir)
+	today_word = random_word()
+	
+	get_child(line_active).line_status = true
+	connect_to_line()
+	print(today_word)
+
+func load_data(dir):
+	file = FileAccess.open(dir, FileAccess.READ)
+	if file == null:
+		push_error("Gagal membuka file")
+		return
+		
+	var text = file.get_as_text()
+	
+	
+	var parsed = JSON.parse_string(text)
+	
+	if parsed == null:
+		push_error("Gagal parse JSON")
+		return
+	
+	data = parsed
+	
+func random_word():
+	var random_id = randi() % data.size()
+	var new_word = data[random_id]["word"]
+	return new_word.to_upper()
+
+func connect_to_line():
+	for i in range(get_child_count()):
+		get_child(i).connect("word_to_container", Callable(self, "check_word"))
+
+func check_word(word):
+	print("checkword", word)
+	if word == today_word:
+		check_letter(word)
+		emit_signal("wordle_win")
+		print("win")
+		return
+	else:
+		for i in range(data.size()):
+			if word == data[i]["word"].to_upper():
+				print ("valid")
+				check_letter(word)
+				
+func check_letter(word):
+	var temp_word:String = today_word
+	for i in range(today_word.length()):
+		if word[i] == today_word[i]:
+			get_child(line_active).get_child(i).change_status(2)
+		elif word[i] in temp_word:
+			get_child(line_active).get_child(i).change_status(3)
+		else:
+			get_child(line_active).get_child(i).change_status(1)
+		
+		temp_word = temp_word.replace(word[i], "")
+		
+	change_line()
+		
+func change_line():
+	if line_active < get_child_count() - 1:
+		get_child(line_active).line_status = false
+		line_active += 1
+		get_child(line_active).line_status = true
+	else:
+		print("game over")
+		emit_signal("wordle_fail")
+
+func get_meaning(word:String) -> String:
+	word = word.to_upper()
+	for entry in data:
+		if entry["word"] == word:
+			return entry["arti"]
+	return "Tidak ada arti."
+
+==========================================================================
+word list.json
+
+
+error : so far none
+==========================================================================
+[
+	{ "word": "ABANG", "arti": "Kakak laki-laki dalam bahasa Betawi." },
+	{ "word": "ACANG", "arti": "Nama panggilan untuk lelaki Betawi tua." },
+	{ "word": "ABYOR", "arti": "Berkilauan dalam maksud memuji penampilan." },
+	{ "word": "BETOT", "arti": "Mencabut (menarik) benda dengan paksa." },
+	{ "word": "BULUK", "arti": "Kotor karena debu" },
+	{ "word": "ENCOT", "arti": "Pincang; timpang; incut" },
+	{ "word": "GEDIG", "arti": "Memukul (dengan palu) ke arah bawah" },
+	{ "word": "KAGAK", "arti": "Tidak" },
+	{ "word": "KIBUL", "arti": "Bohong" },
+	{ "word": "KUCEL", "arti": "Kotor atau kumel" },
+	{ "word": "LEDES", "arti": "Lecet merah pada kulit" },
+	{ "word": "MEONG", "arti": "Tiruan bunyi kucing; Kucing" },
+	{ "word": "NABUN", "arti": "Mengabukan atau Membakar sampah" },
+	{ "word": "PODOL", "arti": "Tumpul" },
+	{ "word": "PELOR", "arti": "Peluru" },
+	{ "word": "REBON", "arti": "Udang kecil-kecil; udang geragau; udang rebon" },
+	{ "word": "SEPUH", "arti": "tua, berumur ; sesuatu yang dipakai untuk mewarnai kue dsb" },
+	{ "word": "TOJOS", "arti": "Tusuk" },
+	{ "word": "UBUNG", "arti": "Kandang" },
+	{ "word": "UPLEK", "arti": "Akrab (ketika berbicara)" },
+]

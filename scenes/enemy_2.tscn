@@ -1,0 +1,111 @@
+[gd_scene load_steps=13 format=3 uid="uid://n4dtr1taom0j"]
+
+[ext_resource type="Script" uid="uid://c1hnqu7h8tk1e" path="res://scenes/enemy2.gd" id="1_fi5i3"]
+[ext_resource type="Texture2D" uid="uid://dsm3dqdn56vrj" path="res://asset/enemy/slime.png" id="2_oh86k"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4gyqm"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(0, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qi2p4"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(28, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iifgy"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(56, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_epg4t"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(84, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3yqyl"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(112, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wujgv"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(140, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hb8ge"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(168, 0, 28, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e1ltt"]
+atlas = ExtResource("2_oh86k")
+region = Rect2(196, 0, 28, 18)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_t4ald"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4gyqm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qi2p4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iifgy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_epg4t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3yqyl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wujgv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hb8ge")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1ltt")
+}],
+"loop": true,
+"name": &"enemy",
+"speed": 5.0
+}]
+
+[sub_resource type="SeparationRayShape2D" id="SeparationRayShape2D_fi5i3"]
+length = 9.0
+
+[node name="enemy2" type="CharacterBody2D"]
+collision_mask = 15
+script = ExtResource("1_fi5i3")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_t4ald")
+animation = &"enemy"
+
+[node name="CollisionTop" type="CollisionShape2D" parent="."]
+rotation = -3.1415927
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="CollisionLeft" type="CollisionShape2D" parent="."]
+rotation = 1.5707964
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="CollisionRight" type="CollisionShape2D" parent="."]
+rotation = -1.5707964
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="CollisionDown" type="CollisionShape2D" parent="."]
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="Interaction" type="Area2D" parent="."]
+
+[node name="Top" type="CollisionShape2D" parent="Interaction"]
+rotation = 3.1415925
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="Left" type="CollisionShape2D" parent="Interaction"]
+rotation = 1.5707964
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="Right" type="CollisionShape2D" parent="Interaction"]
+rotation = -1.5707964
+shape = SubResource("SeparationRayShape2D_fi5i3")
+
+[node name="Down" type="CollisionShape2D" parent="Interaction"]
+shape = SubResource("SeparationRayShape2D_fi5i3")

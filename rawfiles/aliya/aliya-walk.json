@@ -1,0 +1,80 @@
+{ "frames": {
+   "aliya-walk 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 1.ase": {
+    "frame": { "x": 34, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 2.ase": {
+    "frame": { "x": 68, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 3.ase": {
+    "frame": { "x": 102, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 4.ase": {
+    "frame": { "x": 136, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 5.ase": {
+    "frame": { "x": 170, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 6.ase": {
+    "frame": { "x": 204, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   },
+   "aliya-walk 7.ase": {
+    "frame": { "x": 238, "y": 0, "w": 34, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 34, "h": 58 },
+    "sourceSize": { "w": 34, "h": 58 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/johnacumalaka/Documents/nganter-ondel-ondel/rawfiles/aliya-walk.png",
+  "format": "RGBA8888",
+  "size": { "w": 272, "h": 58 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 2", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}

@@ -1,0 +1,113 @@
+{ "frames": {
+   "aliya-idle 0.ase": {
+    "frame": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 1.ase": {
+    "frame": { "x": 47, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 2.ase": {
+    "frame": { "x": 94, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 3.ase": {
+    "frame": { "x": 141, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 4.ase": {
+    "frame": { "x": 188, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 5.ase": {
+    "frame": { "x": 235, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 6.ase": {
+    "frame": { "x": 282, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 7.ase": {
+    "frame": { "x": 329, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 8.ase": {
+    "frame": { "x": 376, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 9.ase": {
+    "frame": { "x": 423, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 10.ase": {
+    "frame": { "x": 470, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   },
+   "aliya-idle 11.ase": {
+    "frame": { "x": 517, "y": 0, "w": 47, "h": 58 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 47, "h": 58 },
+    "sourceSize": { "w": 47, "h": 58 },
+    "duration": 100
+   }
+ },
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.1-dev",
+  "image": "/home/johnacumalaka/Documents/nganter-ondel-ondel/rawfiles/aliya-idle.png",
+  "format": "RGBA8888",
+  "size": { "w": 564, "h": 58 },
+  "scale": "1",
+  "frameTags": [
+  ],
+  "layers": [
+   { "name": "Layer 1", "opacity": 255, "blendMode": "normal" },
+   { "name": "Layer 2", "opacity": 255, "blendMode": "normal" }
+  ]
+ }
+}

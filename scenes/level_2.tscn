@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://cabvdvecgukba"]
+
+[ext_resource type="TileSet" uid="uid://cqt1vmel401dv" path="res://asset/terrain/ground_tileset.tres" id="1_eqxsl"]
+[ext_resource type="PackedScene" uid="uid://ci1btr38ey2y3" path="res://scenes/ondel-ondel.tscn" id="2_b4j7a"]
+[ext_resource type="PackedScene" uid="uid://cups5uobff1n0" path="res://scenes/enemy.tscn" id="3_wo48x"]
+[ext_resource type="PackedScene" uid="uid://i1pypxodmsux" path="res://scenes/player.tscn" id="4_y0kc7"]
+
+[node name="level 2" type="Node2D"]
+
+[node name="TileMap" type="TileMap" parent="."]
+position = Vector2(1, 1)
+tile_set = ExtResource("1_eqxsl")
+format = 2
+layer_0/tile_data = PackedInt32Array(589824, 0, 0, 589825, 65536, 0, 589826, 131072, 0, 589827, 196608, 0, 589828, 262144, 0, 589829, 0, 0, 589830, 65536, 0, 589831, 131072, 0, 589832, 196608, 0, 589833, 262144, 0, 589834, 0, 0, 589835, 65536, 0, 589836, 131072, 0, 589837, 196608, 0, 589838, 262144, 0, 589839, 0, 0, 589840, 65536, 0, 589841, 131072, 0, 589842, 196608, 0, 589843, 262144, 0, 589844, 0, 0, 589845, 65536, 0, 589846, 131072, 0, 589847, 196608, 0, 589848, 262144, 0, 589849, 0, 0, 589850, 65536, 0, 589851, 131072, 0, 589852, 196608, 0, 589853, 262144, 0, 589854, 0, 0, 589855, 65536, 0, 589856, 131072, 0, 589857, 196608, 0, 589858, 262144, 0, 458774, 0, 4, 458775, 65536, 4, 458776, 131072, 4, 524313, 0, 4, 524314, 65536, 4, 524315, 131072, 4, 524310, 0, 0, 524311, 65536, 0, 524312, 131072, 0, 524307, 0, 0, 524308, 65536, 0, 524309, 131072, 0, 458771, 0, 4, 458772, 65536, 4, 458773, 131072, 4, 524304, 0, 4, 524305, 65536, 4, 524306, 131072, 4, 589859, 262144, 2, 524323, 0, 3, 458787, 0, 3, 393251, 0, 3, 327715, 0, 3, 655359, 262144, 2, 589823, 65536, 3, 524287, 65536, 3, 458751, 65536, 3, 393215, 65536, 3)
+
+[node name="ondel-ondel" parent="." instance=ExtResource("2_b4j7a")]
+position = Vector2(23, 98)
+follow_target = NodePath("../player")
+
+[node name="enemy" parent="." instance=ExtResource("3_wo48x")]
+position = Vector2(507, 123)
+
+[node name="player" parent="." groups=["player"] instance=ExtResource("4_y0kc7")]
+position = Vector2(56, 110)
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "level 2"

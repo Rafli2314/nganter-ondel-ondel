@@ -1,0 +1,212 @@
+==========================================================================
+player.gd
+==========================================================================
+extends CharacterBody2D
+
+const SPEED = 120
+const JUMP_FORCE = -320.0
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var follow_mode := true
+
+func _ready():
+	add_to_group("player")
+
+func _physics_process(delta):
+	# Gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+
+	# Horizontal input
+	var input_dir = Input.get_axis("ui_left", "ui_right")
+	velocity.x = input_dir * SPEED
+	if Input.is_action_pressed("ui_right"):
+		$AnimatedSprite2D.flip_h = false
+
+	elif Input.is_action_pressed("ui_left"):
+		$AnimatedSprite2D.flip_h = true
+	# Jump
+	if is_on_floor() and Input.is_action_just_pressed("ui_up"):
+		velocity.y = JUMP_FORCE
+		
+	# === ANIMATION STATE MACHINE ===
+	if not is_on_floor():
+		$AnimatedSprite2D.play("aliya-jump")
+	elif velocity.x != 0:
+		$AnimatedSprite2D.play("aliya-walk")
+	else:
+		$AnimatedSprite2D.play("aliya-idle")
+		
+	# Toggle follow
+	if Input.is_action_just_pressed("toggle_follow"):
+		var ond = get_node("../ondel-ondel")
+		ond.follow_mode = !ond.follow_mode
+	move_and_slide()
+	
+func bounce():
+	velocity.y = -200
+==========================================================================
+ondel_ondel.gd
+==========================================================================
+extends CharacterBody2D
+
+@export var follow_target: NodePath
+var speed = 60
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+var follow_mode := true
+
+func _physics_process(delta):
+	var target = get_node(follow_target)
+	
+	# Gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+	
+	# If stay command active → DO NOTHING
+	if not follow_mode:
+		velocity.x = 0
+		$AnimatedSprite2D.play("ondel-ondel-idle")
+		move_and_slide()
+		return
+
+	# Follow logic
+	var dx = target.global_position.x - global_position.x
+
+	if abs(dx) > 16:
+		velocity.x = speed * sign(dx)
+	else:
+		velocity.x = 0
+
+	# Auto-hop if stuck on wall
+	if is_on_floor() and is_on_wall():
+		velocity.y = -160
+
+	$AnimatedSprite2D.play("ondel-ondel-idle")
+	
+	move_and_slide()
+
+==========================================================================
+enemy.gd
+==========================================================================
+extends CharacterBody2D
+
+const SPEED = 25.0
+
+var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
+
+@onready var animated_sprite_2d = $AnimatedSprite2D
+
+func _physics_process(delta):
+	# Add the gravity.
+	velocity.y += gravity * delta
+	
+	# Set the horizontal velocity to a constant negative value to move left.
+	velocity.x = -SPEED
+	
+	move_and_slide()
+
+func _on_top_kill_body_entered(body: Node2D) -> void:
+	if body.is_in_group("Player"):
+		queue_free()
+==========================================================================
+main.gd
+==========================================================================
+extends Node2D
+
+
+func _on_terminal_open_puzzle():
+	$WordlePuzzle.visible = true
+	get_tree().paused = true  # Freeze game while puzzle open
+
+==========================================================================
+terminal.gd
+==========================================================================
+extends Area2D
+
+signal open_puzzle
+var player_in_range := false
+
+func _on_body_entered(body):
+	if body.is_in_group("player"):
+		player_in_range = true
+
+func _on_body_exited(body):
+	if body.is_in_group("player"):
+		player_in_range = false
+
+func _process(delta):
+	if player_in_range and Input.is_action_just_pressed("interact"):
+		emit_signal("open_puzzle")
+
+==========================================================================
+worlde_puzzle.gd
+==========================================================================
+extends Control
+
+@export var answer := "ONDEL"
+var attempt := 0
+const MAX_ATTEMPT := 6
+var glossary = {
+	"ONDEL": "Ondel-ondel adalah boneka raksasa Betawi...",
+	"PALANG": "Palang Pintu adalah tradisi Betawi...",
+	"LENONG": "Lenong adalah seni teater tradisional Betawi..."
+}
+
+func _ready():
+	answer = answer.to_upper()
+
+func check_word(guess: String) -> Array:
+	guess = guess.to_upper()
+	var result := []
+
+	for i in range(guess.length()):
+		if guess[i] == answer[i]:
+			result.append("correct")
+		elif answer.contains(guess[i]):
+			result.append("present")
+		else:
+			result.append("absent")
+
+	return result
+
+func submit_guess():
+	var guess = $LineEdit.text
+	if guess.length() != 5:
+		return
+
+	var result = check_word(guess)
+	update_grid(attempt, guess, result)
+
+	if guess == answer:
+		show_success()
+		return
+
+	attempt += 1
+
+	if attempt >= MAX_ATTEMPT:
+		show_fail()
+
+func update_grid(row, guess, result):
+	var start_index = row * 5
+	for i in range(5):
+		var cell = $GridContainer.get_child(start_index + i)
+		cell.text = guess[i]
+
+		match result[i]:
+			"correct": cell.modulate = Color(0.2, 0.8, 0.2)
+			"present": cell.modulate = Color(0.8, 0.8, 0.2)
+			"absent":  cell.modulate = Color(0.3, 0.3, 0.3)
+
+func show_success():
+	$Label.text = "Benar! Ondel = simbol budaya Betawi..."
+	$Label.text = glossary.get(answer, "Tidak ada info budaya.")
+	# kirim sinyal ke level untuk buka pintu, dll
+
+func show_fail():
+	$Label.text = "Salah semua... di-reset ya!"
+	# Reset grid & attempt
+
+func _on_close_pressed():
+	visible = false
+	get_tree().paused = false
+
+

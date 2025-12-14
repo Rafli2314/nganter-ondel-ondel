@@ -1,0 +1,233 @@
+==========================================================================
+wordle_puzzle.gd
+
+
+error : so far none
+==========================================================================
+extends Control
+
+@export var answer := "ONDEL"
+var attempt := 0
+const MAX_ATTEMPT := 6
+var glossary = {
+	"ONDEL": "Ondel-ondel adalah boneka raksasa Betawi...",
+	"PALANG": "Palang Pintu adalah tradisi Betawi...",
+	"LENONG": "Lenong adalah seni teater tradisional Betawi..."
+}
+
+func _ready():
+	answer = answer.to_upper()
+
+func check_word(guess: String) -> Array:
+	guess = guess.to_upper()
+	var result := []
+
+	for i in range(guess.length()):
+		if guess[i] == answer[i]:
+			result.append("correct")
+		elif answer.contains(guess[i]):
+			result.append("present")
+		else:
+			result.append("absent")
+
+	return result
+
+func submit_guess():
+	var guess = $LineEdit.text
+	if guess.length() != 5:
+		return
+
+	var result = check_word(guess)
+	update_grid(attempt, guess, result)
+
+	if guess == answer:
+		show_success()
+		return
+
+	attempt += 1
+
+	if attempt >= MAX_ATTEMPT:
+		show_fail()
+
+func update_grid(row, guess, result):
+	var start_index = row * 5
+	for i in range(5):
+		var cell = $GridContainer.get_child(start_index + i)
+		cell.text = guess[i]
+
+		match result[i]:
+			"correct": cell.modulate = Color(0.2, 0.8, 0.2)
+			"present": cell.modulate = Color(0.8, 0.8, 0.2)
+			"absent":  cell.modulate = Color(0.3, 0.3, 0.3)
+
+func show_success():
+	$Label.text = "Benar! Ondel = simbol budaya Betawi..."
+	$Label.text = glossary.get(answer, "Tidak ada info budaya.")
+	# kirim sinyal ke level untuk buka pintu, dll
+
+func show_fail():
+	$Label.text = "Salah semua... di-reset ya!"
+	# Reset grid & attempt
+
+func _on_close_pressed():
+	visible = false
+	get_tree().paused = false
+
+func _on_terminal_open_puzzle() -> void:
+	pass # Replace with function body.
+
+func _on_button_pressed() -> void:
+			get_tree().change_scene_to_file("res://scenes/wordle/main.tscn")
+
+
+==========================================================================
+line_container.gd
+
+
+error : so far none
+==========================================================================
+extends VBoxContainer
+
+var file
+var file_dir = "res://scripts/wordle/word list.json"
+var data
+
+var today_word
+
+var line_active = 0
+
+func _ready():
+	load_data(file_dir)
+	today_word = random_word()
+	
+	get_child(line_active).line_status = true
+	connect_to_line()
+	print(today_word)
+
+func load_data(dir):
+	file = FileAccess.open(dir, FileAccess.READ)
+	if file == null:
+		push_error("Gagal membuka file")
+		return
+		
+	var text = file.get_as_text()
+	
+	var parsed = JSON.parse_string(text)
+	
+	if parsed == null:
+		push_error("Gagal parse JSON")
+		return
+	
+	data = parsed
+	
+func random_word():
+	var random_id = randi() % data.size()
+	var new_word = data[random_id]["word"]
+	return new_word
+
+func connect_to_line():
+	for i in range(get_child_count()):
+		get_child(i).connect("word_to_container", Callable(self, "check_word"))
+
+func check_word(word):
+	print("checkword", word)
+	if word == today_word:
+		check_letter(word)
+		print("win")
+	else:
+		for i in range(data.size()):
+			if word == data[i]["word"].to_upper():
+				print ("valid")
+				check_letter(word)
+				
+func check_letter(word):
+	var temp_word:String = today_word
+	for i in range(today_word.length()):
+		if word[i] == today_word[i]:
+			get_child(line_active).get_child(i).change_status(2)
+		elif word[i] in temp_word:
+			get_child(line_active).get_child(i).change_status(3)
+		else:
+			get_child(line_active).get_child(i).change_status(1)
+		
+		temp_word = temp_word.replace(word[i], "")
+		
+	change_line()
+		
+func change_line():
+	if line_active < get_child_count() - 1:
+		get_child(line_active).line_status = false
+		line_active += 1
+		get_child(line_active).line_status = true
+	else:
+		print("game over")
+
+==========================================================================
+letter_1.gd
+
+
+error : so far none
+==========================================================================
+extends Label
+
+var bg_default = load("res://asset/bg_default.tres")
+var bg_gray = load("res://asset/bg_gray.tres")
+var bg_green = load("res://asset/bg_green.tres")
+var bg_yellow = load("res://asset/bg_yellow.tres")
+
+var array_status = [bg_default, bg_gray, bg_green, bg_yellow]
+
+func _ready() -> void:
+	change_status(0)
+
+func change_status(status: int) -> void:
+	# play flip animation, tunggu selesai, lalu apply stylebox
+	$AnimationPlayer.play("flip")
+	# Tunggu timeout timer: gunakan dot-syntax await
+	await get_tree().create_timer(0.3).timeout
+	$AnimationPlayer.play("flip_back")
+
+	# Use add_theme_stylebox_override dengan key yang sesuai. 
+	# "panel" atau "normal" tergantung bagaimana theme/style kamu disusun — coba "panel" dulu.
+	var sb = array_status[status]
+	if sb != null:
+		add_theme_stylebox_override("label", sb)
+	else:
+		# fallback: pakai modulate kalau stylebox nil
+		modulate = Color(1,2,3,1)
+
+func pop_anim() -> void:
+	$AnimationPlayer.play("pop")
+
+
+
+==========================================================================
+word list.json
+
+
+error : so far none
+==========================================================================
+
+[
+	{ "word": "ABANG", "arti": "Kakak laki-laki dalam bahasa Betawi." },
+    { "word": "ACANG", "arti": "Nama panggilan untuk lelaki Betawi tua." },
+    { "word": "ABYOR", "arti": "Berkilauan dalam maksud memuji penampilan." },
+    { "word": "BETOT", "arti": "Mencabut (menarik) benda dengan paksa." },
+    { "word": "BULUK", "arti": "Kotor karena debu" },
+    { "word": "ENCOT", "arti": "Pincang; timpang; incut" },
+    { "word": "GEDIG", "arti": "Memukul (dengan palu) ke arah bawah" },
+    { "word": "KAGAK", "arti": "Tidak" },
+    { "word": "KIBUL", "arti": "Bohong" },
+    { "word": "KUCEL", "arti": "Kotor atau kumel" },
+    { "word": "LEDES", "arti": "Lecet merah pada kulit" },
+    { "word": "MEONG", "arti": "Tiruan bunyi kucing; Kucing" },
+    { "word": "NABUN", "arti": "Mengabukan atau Membakar sampah" },
+    { "word": "PODOL", "arti": "Tumpul" },
+    { "word": "PELOR", "arti": "Peluru" },
+    { "word": "REBON", "arti": "Udang kecil-kecil; udang geragau; udang rebon" },
+    { "word": "SEPUH", "arti": "tua, berumur ; sesuatu yang dipakai untuk mewarnai kue dsb" },
+    { "word": "TOJOS", "arti": "Tusuk" },
+    { "word": "UBUNG", "arti": "Kandang" },
+    { "word": "UPLEK", "arti": "Akrab (ketika berbicara)" },
+]
+

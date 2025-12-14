@@ -1,0 +1,97 @@
+[gd_scene load_steps=15 format=3 uid="uid://ci1btr38ey2y3"]
+
+[ext_resource type="Texture2D" uid="uid://blwdhkr0up4p" path="res://rawfiles/onde-ondel/ondel-ondel.png" id="1_imtiq"]
+[ext_resource type="Script" uid="uid://ykgwfyytkv17" path="res://scripts/ondel_ondel.gd" id="1_vprgs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vprgs"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(0, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qpyxo"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(96, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s7l88"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(192, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nccvk"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(288, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w7k7u"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(384, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ilec5"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(480, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a4c55"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(576, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4bu4x"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(672, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_34ggt"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(768, 0, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5xqm"]
+atlas = ExtResource("1_imtiq")
+region = Rect2(864, 0, 96, 96)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bpl2c"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vprgs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qpyxo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s7l88")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nccvk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w7k7u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ilec5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a4c55")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4bu4x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_34ggt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c5xqm")
+}],
+"loop": true,
+"name": &"ondel-ondel-idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_imtiq"]
+radius = 14.0
+height = 88.0
+
+[node name="ondel-ondel" type="CharacterBody2D"]
+collision_mask = 9
+script = ExtResource("1_vprgs")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_bpl2c")
+animation = &"ondel-ondel-idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_imtiq")

@@ -1,0 +1,163 @@
+==========================================================================
+line_1.gd
+
+error : so far none
+==========================================================================
+extends HBoxContainer
+
+@export var line_status: bool = false
+var word_input: String = ""
+
+signal word_to_container(word: String)
+
+func _input(event):
+	if not line_status:
+		return
+	
+	# ENTER to submit
+	if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_ENTER:
+		emit_signal("word_to_container", word_input)
+		return
+
+	# BACKSPACE
+	if event is InputEventKey and event.is_pressed() and not event.is_echo() and event.keycode == KEY_BACKSPACE:
+		if word_input.length() > 0:
+			word_input = word_input.erase(word_input.length() - 1, 1)
+			update_label()
+		return
+
+	# LETTER INPUT
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		var ch: String = event.as_text()
+		if ch.length() == 1 and word_input.length() < get_child_count():
+			word_input += ch
+			update_label()
+			get_child(word_input.length() - 1).pop_anim()
+			print(word_input)
+
+func update_label():
+	for i in range(get_child_count()):
+		get_child(i).text = ""
+	for i in range(word_input.length()):
+		get_child(i).text = word_input[i]
+
+
+
+
+
+
+==========================================================================
+line_container.gd
+
+error : no error
+==========================================================================
+extends VBoxContainer
+
+var file
+var file_dir = "res://scripts/wordle/word list.json"
+var data
+
+var today_word
+
+var line_active = 0
+
+func _ready():
+	load_data(file_dir)
+	today_word = random_word()
+	
+	get_child(line_active).line_status = true
+	connect_to_line()
+	print(today_word)
+
+func load_data(dir):
+	file = FileAccess.open(dir, FileAccess.READ)
+	if file == null:
+		push_error("Gagal membuka file")
+		return
+		
+	var text = file.get_as_text()
+	
+	var parsed = JSON.parse_string(text)
+	
+	if parsed == null:
+		push_error("Gagal parse JSON")
+		return
+	
+	data = parsed
+	
+func random_word():
+	var random_id = randi() % data.size()
+	var new_word = data[random_id]["word"]
+	return new_word
+
+func connect_to_line():
+	for i in range(get_child_count()):
+		get_child(i).connect("word_to_container", Callable(self, "check_word"))
+
+func check_word(word):
+	print("checkword", word)
+	if word == today_word:
+		check_letter(word)
+		print("win")
+	else:
+		for i in range(data.size()):
+			if word == data[i]["word"].to_upper():
+				print ("valid")
+				check_letter(word)
+				
+func check_letter(word):
+	var temp_word:String = today_word
+	for i in range(today_word.length()):
+		if word[i] == today_word[i]:
+			get_child(line_active).get_child(i).change_status(2)
+		elif word[i] in temp_word:
+			get_child(line_active).get_child(i).change_status(3)
+		else:
+			get_child(line_active).get_child(i).change_status(1)
+		
+		temp_word = temp_word.replace(word[i], "")
+		
+	change_line()
+		
+func change_line():
+	if line_active < get_child_count() - 1:
+		get_child(line_active).line_status = false
+		line_active += 1
+		get_child(line_active).line_status = true
+	else:
+		print("game over")
+
+
+
+
+==========================================================================
+letter_1.gd
+
+error : 
+
+Line 15:Expected closing ")" after grouping expression.
+Line 15:Expected end of statement after expression, found "," instead.
+
+==========================================================================
+
+extends Label
+
+var bg_default = load("res://asset/bg_default.tres")
+var bg_gray = load("res://asset/bg_gray.tres")
+var bg_green = load("res://asset/bg_green.tres")
+var bg_yellow = load("res://asset/bg_yellow.tres")
+
+var array_status = [bg_default, bg_gray, bg_green, bg_yellow]
+
+func _ready() -> void:
+	change_status(0)
+	
+func change_status(status):
+	$AnimationPlayer.play("flip")
+	await(get_tree().create_timer(0.3), "timeout")
+	$AnimationPlayer.play("flip_back")
+	theme = array_status[status]
+
+func pop_anim():
+	$AnimationPlayer.play("pop")
+

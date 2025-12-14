@@ -1,0 +1,14 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://8rlla4fi8uro"]
+
+[ext_resource type="FontFile" uid="uid://dtdblg37abbsx" path="res://asset/fonts/PixelOperator8-Bold.ttf" id="1_8diyh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gvglg"]
+bg_color = Color(0.13, 0.13, 0.13, 0)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[resource]
+Label/fonts/font = ExtResource("1_8diyh")
+Label/styles/normal = SubResource("StyleBoxFlat_gvglg")
